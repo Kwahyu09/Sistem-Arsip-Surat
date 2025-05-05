@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\IncomingLetter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Route model binding untuk IncomingLetter pakai slug
+        Route::bind('incomingletter', function ($value) {
+            return IncomingLetter::where('slug', $value)->firstOrFail();
+        });
     }
 }

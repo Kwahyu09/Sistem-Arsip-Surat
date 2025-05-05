@@ -47,4 +47,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function incomingletter()
+    {
+        return $this->belongsTo(IncomingLetter::class);
+    }
 }

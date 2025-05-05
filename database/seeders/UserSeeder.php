@@ -33,11 +33,25 @@ class UserSeeder extends Seeder
         ]);
 
 
-        // Mahasiswa
+        // Staff Bidang
         User::create([
-            'name' => 'Staff Bidang User',
-            'username' => 'Staffbidang123',
-            'email' => 'staffbidang@example.com',
+            'name' => 'Staff Bidang It',
+            'username' => 'Staff_it',
+            'email' => 'staffIt@example.com',
+            'password' => Hash::make('password123'),
+            'role' => 'staff_bidang',
+        ]);
+        User::create([
+            'name' => 'Staff Bidang Keuangan',
+            'username' => 'Staff_Keuangan',
+            'email' => 'staff_keuangan@example.com',
+            'password' => Hash::make('password123'),
+            'role' => 'staff_bidang',
+        ]);
+        User::create([
+            'name' => 'Staff Bidang Acara',
+            'username' => 'Staff_acara',
+            'email' => 'staff_acara@example.com',
             'password' => Hash::make('password123'),
             'role' => 'staff_bidang',
         ]);
