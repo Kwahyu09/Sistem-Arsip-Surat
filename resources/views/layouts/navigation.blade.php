@@ -15,6 +15,26 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    @auth
+                        @if (Auth::user()->role === 'admin')
+                            <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                                {{ __('Akun Pengguna') }}
+                            </x-nav-link>
+                        @endif
+                    @endauth
+                    <x-nav-link :href="route('surat-masuk.index')" :active="request()->routeIs('surat-masuk.*')">
+                        {{ __('Surat Masuk') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('surat-keluar.index')" :active="request()->routeIs('surat-keluar.*')">
+                        {{ __('Surat Keluar') }}
+                    </x-nav-link>
+                    @auth
+                        @if (Auth::user()->role !== 'staff_bidang')
+                            <x-nav-link :href="route('rekap.index')" :active="request()->routeIs('rekap.*')">
+                                {{ __('Rekap') }}
+                            </x-nav-link>
+                        @endif
+                    @endauth
                 </div>
             </div>
 
@@ -38,10 +58,6 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('rolelogin')">
-                            role
-                        </x-dropdown-link>
-
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -78,6 +94,26 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            @auth
+                @if (Auth::user()->role === 'admin')
+                    <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                        {{ __('Akun Pengguna') }}
+                    </x-responsive-nav-link>
+                @endif
+            @endauth
+            <x-responsive-nav-link :href="route('surat-masuk.index')" :active="request()->routeIs('surat-masuk.*')">
+                {{ __('Surat Masuk') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('surat-keluar.index')" :active="request()->routeIs('surat-keluar.*')">
+                {{ __('Surat Keluar') }}
+            </x-responsive-nav-link>
+            @auth
+                @if (Auth::user()->role !== 'staff_bidang')
+                    <x-responsive-nav-link :href="route('rekap.index')" :active="request()->routeIs('rekap.*')">
+                        {{ __('Rekap') }}
+                    </x-responsive-nav-link>
+                @endif
+            @endauth
         </div>
 
         <!-- Responsive Settings Options -->
@@ -88,10 +124,6 @@
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('rolelogin')">
-                    role
-                </x-responsive-nav-link>
-
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

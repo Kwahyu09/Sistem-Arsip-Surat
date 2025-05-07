@@ -99,20 +99,28 @@
                     </div>
 
                     <div>
-                        <label for="user_id" class="block font-medium text-sm text-gray-700">Bidang tujuan:</label>
-                        <select name="user_id" id="user_id" required
-                            class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
-                            <option value="">-- Pilih Tujuan --</option>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}"
-                                    {{ old('user_id', $incomingletter->user_id) == $user->id ? 'selected' : '' }}>
-                                    {{ $user->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('user_id')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
+                        @php
+                            $currentUser = Auth::user();
+                        @endphp
+
+                        @if ($currentUser->role === 'staff_bidang')
+                            <input type="hidden" name="user_id" value="{{ $currentUser->user_id }}">
+                        @else
+                            <label for="user_id" class="block font-medium text-sm text-gray-700">Bidang tujuan:</label>
+                            <select name="user_id" id="user_id" required
+                                class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
+                                <option value="">-- Pilih Tujuan --</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}"
+                                        {{ old('user_id', $incomingletter->user_id) == $user->id ? 'selected' : '' }}>
+                                        {{ $user->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('user_id')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        @endif
                     </div>
 
                     <div>

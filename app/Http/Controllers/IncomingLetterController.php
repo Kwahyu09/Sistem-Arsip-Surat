@@ -61,7 +61,9 @@ class IncomingLetterController extends Controller
 
         IncomingLetter::create($data);
 
-        return redirect()->route('surat-masuk.index')->with('success', 'Surat Masuk berhasil disimpan.');
+        flash()->success('Surat Masuk Berhasil Ditambahkan.', ['title' => 'Berhasil']);
+
+        return redirect()->route('surat-masuk.index');
     
     }
 

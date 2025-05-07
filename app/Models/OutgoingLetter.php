@@ -22,11 +22,11 @@ class OutgoingLetter extends Model
         parent::boot();
 
         static::creating(function ($letter) {
-            $letter->slug = Str::slug(strtolower($letter->recipient));
+            $letter->slug = Str::slug(strtolower($letter->recipient . now()->timestamp . Str::random(2)));
         });
 
         static::updating(function ($letter) {
-            $letter->slug = Str::slug(strtolower($letter->recipient));
+            $letter->slug = Str::slug(strtolower($letter->recipient . now()->timestamp . Str::random(2)));
         });
     }
 

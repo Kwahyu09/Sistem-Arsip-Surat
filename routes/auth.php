@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\IncomingLetterController;
 use App\Http\Controllers\OutgoingLetterController;
+use App\Http\Controllers\RekapController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -48,6 +49,11 @@ Route::middleware('auth')->group(function () {
     Route::get('surat-keluar-lihat/{slug}', [OutgoingLetterController::class, 'viewFile'])->name('surat-keluar.view');
     Route::get('surat-keluar-download/{slug}', [OutgoingLetterController::class, 'downloadFile'])->name('surat-keluar.download');
     
+    // routes/web.php
+    Route::middleware(['role:admin,staff'])->group(function () {
+        Route::get('/rekap', [RekapController::class, 'index'])->name('rekap.index');
+    });
+
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });
