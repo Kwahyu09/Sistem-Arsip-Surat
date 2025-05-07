@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Manajemen Surat Masuk') }}
+            {{ __('Manajemen Surat Keluar') }}
         </h2>
     </x-slot>
 
@@ -11,10 +11,10 @@
 
                 {{-- TOMBOL TAMBAH & SEARCH --}}
                 <div class="flex justify-between items-center mb-4">
-                    <a href="{{ route('surat-masuk.create') }}"
-                        class="bg-blue-500 text-black px-4 py-2 rounded hover:bg-blue-600">+ Tambah Surat Masuk</a>
+                    <a href="{{ route('surat-keluar.create') }}"
+                        class="bg-blue-500 text-black px-4 py-2 rounded hover:bg-blue-600">+ Tambah Surat Keluar</a>
 
-                    <form action="{{ route('surat-masuk.index') }}" method="GET" class="flex">
+                    <form action="{{ route('surat-keluar.index') }}" method="GET" class="flex">
                         <input type="text" name="search" placeholder="Cari surat..."
                             class="border rounded-l px-4 py-2" value="{{ request('search') }}">
                         <button type="submit"
@@ -22,23 +22,22 @@
                     </form>
                 </div>
 
-                {{-- TABEL SURAT MASUK --}}
+                {{-- TABEL SURAT keluar --}}
                 <table class="table-auto w-full">
                     <thead>
                         <tr>
-                            <th class="px-4 py-2">Pengirim</th>
+                            <th class="px-4 py-2">Penerima</th>
                             <th class="px-4 py-2">Nomor Surat</th>
                             <th class="px-4 py-2">Tanggal Surat</th>
                             <th class="px-4 py-2">File</th>
                             <th class="px-4 py-2">Perihal</th>
-                            <th class="px-4 py-2">Desposisi</th>
                             <th class="px-4 py-2">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($incomingletter as $letter)
+                        @forelse ($outgoingletter as $letter)
                             <tr>
-                                <td class="border px-4 py-2">{{ $letter->sender }}</td>
+                                <td class="border px-4 py-2">{{ $letter->recipient }}</td>
                                 <td class="border px-4 py-2">{{ $letter->letter_number }}</td>
                                 <td class="border px-4 py-2">
                                     {{ \Carbon\Carbon::parse($letter->letter_date)->format('d-m-Y') }}</td>
@@ -58,12 +57,11 @@
                                     @endif
                                 </td>
                                 <td class="border px-4 py-2">{{ $letter->subject }}</td>
-                                <td class="border px-4 py-2 disposition capitalize">{{ $letter->disposition }}</td>
                                 <td class="border px-4 py-2">
-                                    <a href="{{ route('surat-masuk.edit', $letter->slug) }}"
+                                    <a href="{{ route('surat-keluar.edit', $letter->slug) }}"
                                         class="text-blue-500">Edit</a>
                                     |
-                                    <form action="{{ route('surat-masuk.destroy', $letter->slug) }}" method="POST"
+                                    <form action="{{ route('surat-keluar.destroy', $letter->slug) }}" method="POST"
                                         class="inline">
                                         @csrf
                                         @method('DELETE')
@@ -74,34 +72,16 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-4">Tidak ada surat masuk ditemukan.</td>
+                                <td colspan="6" class="text-center py-4">Tidak ada surat keluar ditemukan.</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
+
                 <div class="mt-5">
-                    {{ $incomingletter->links() }}
+                    {{ $outgoingletter->links() }}
                 </div>
             </div>
         </div>
     </div>
-
-    {{-- SCRIPT untuk ubah teks Disposition --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const mappings = {
-                'known': 'Untuk Diketahui',
-                'actioned': 'Penting',
-                'archived': 'Arsip'
-            };
-
-            const dispositions = document.querySelectorAll('.disposition');
-            dispositions.forEach(function(cell) {
-                const originalText = cell.textContent.trim().toLowerCase();
-                if (mappings[originalText]) {
-                    cell.textContent = mappings[originalText];
-                }
-            });
-        });
-    </script>
 </x-app-layout>

@@ -50,6 +50,11 @@ class User extends Authenticatable
 
     public function incomingletter()
     {
-        return $this->belongsTo(IncomingLetter::class);
+        return $this->hasMany(IncomingLetter::class);
+    }
+
+    public function outgoingletter()
+    {
+        return $this->hasMany(OutgoingLetter::class);
     }
 }

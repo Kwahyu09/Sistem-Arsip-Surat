@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\IncomingLetterController;
+use App\Http\Controllers\OutgoingLetterController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,21 +36,17 @@ Route::middleware('auth')->group(function () {
         Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
-    //route surat masuk
-    // Route::controller(IncomingLetterController::class)->group(function () {
-    //     Route::get('surat-masuk', 'index')->name('incomingletter.index');    
-    //     Route::get('surat-masuk/create', 'create')->name('incomingletter.create');
-    //     Route::post('surat-masuk', 'store')->name('incomingletter.store');
-    //     Route::get('surat-masuk/{incomingletter}', 'show')->name('incomingletter.show');
-    //     Route::get('surat-masuk/{incomingletter}/edit', 'edit')->name('incomingletter.edit');
-    //     Route::put('surat-masuk/{incomingletter}', 'update')->name('incomingletter.update');
-    //     Route::delete('surat-masuk/{incomingletter}', 'destroy')->name('incomingletter.destroy');
-    // });
     Route::resource('surat-masuk', IncomingLetterController::class, [
         'parameters' => ['surat-masuk' => 'incomingletter'] // penting: parameter ganti incomingletter
     ]);
     Route::get('surat-masuk-lihat/{slug}', [IncomingLetterController::class, 'viewFile'])->name('surat-masuk.view');
     Route::get('surat-masuk-download/{slug}', [IncomingLetterController::class, 'downloadFile'])->name('surat-masuk.download');
+
+    Route::resource('surat-keluar', OutgoingLetterController::class, [
+        'parameters' => ['surat-keluar' => 'outgoingletter']
+    ]);
+    Route::get('surat-keluar-lihat/{slug}', [OutgoingLetterController::class, 'viewFile'])->name('surat-keluar.view');
+    Route::get('surat-keluar-download/{slug}', [OutgoingLetterController::class, 'downloadFile'])->name('surat-keluar.download');
     
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');

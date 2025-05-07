@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Tambah Surat Masuk
+            Tambah Surat Keluar
         </h2>
     </x-slot>
 
@@ -9,19 +9,19 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white p-6 rounded shadow">
 
-                <a href="{{ route('surat-masuk.index') }}" class="btn inline-block mb-6">
+                <a href="{{ route('surat-keluar.index') }}" class="btn inline-block mb-6">
                     ← Kembali ke daftar surat
                 </a>
 
-                <form action="{{ route('surat-masuk.store') }}" method="POST" enctype="multipart/form-data"
+                <form action="{{ route('surat-keluar.store') }}" method="POST" enctype="multipart/form-data"
                     class="space-y-4">
                     @csrf
 
                     <div>
-                        <label for="sender" class="block font-medium text-sm text-gray-700">Pengirim:</label>
-                        <input type="text" name="sender" id="sender" value="{{ old('sender') }}" required
+                        <label for="recipient" class="block font-medium text-sm text-gray-700">Penerima:</label>
+                        <input type="text" name="recipient" id="recipient" value="{{ old('recipient') }}" required
                             class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
-                        @error('sender')
+                        @error('recipient')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
@@ -55,23 +55,6 @@
                         @enderror
                     </div>
 
-                    <div>
-                        <label for="disposition" class="block font-medium text-sm text-gray-700">Disposition:</label>
-                        <select name="disposition" id="disposition" required
-                            class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
-                            <option value="">-- Pilih Disposition --</option>
-                            <option value="known" {{ old('disposition') == 'known' ? 'selected' : '' }}>
-                                Untuk Diketahui</option>
-                            <option value="actioned" {{ old('disposition') == 'actioned' ? 'selected' : '' }}>
-                                Penting</option>
-                            <option value="archived" {{ old('disposition') == 'archived' ? 'selected' : '' }}>
-                                Arsip</option>
-                        </select>
-                        @error('disposition')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
                     <!-- Upload File -->
                     <div>
                         <label for="file_path" class="block font-medium text-sm text-gray-700">File Surat:</label>
@@ -91,10 +74,10 @@
                         @if ($currentUser->role === 'staff_bidang')
                             <input type="hidden" name="user_id" value="{{ $currentUser->user_id }}">
                         @else
-                            <label for="user_id" class="block font-medium text-sm text-gray-700">Bidang tujuan:</label>
+                            <label for="user_id" class="block font-medium text-sm text-gray-700">Dari Bidang:</label>
                             <select name="user_id" id="user_id" required
                                 class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
-                                <option value="">-- Pilih Tujuan --</option>
+                                <option value="">-- Pilih Bidang --</option>
                                 @forelse ($users as $user)
                                     <option value="{{ $user->id }}">
                                         {{ old('user_id') }}
