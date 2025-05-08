@@ -40,6 +40,59 @@
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+
+                @auth
+                    @if (Auth::user()->role === 'staff_bidang')
+                        @php
+                            $suratBelumDibaca = \App\Models\IncomingLetter::where('user_id', Auth::user()->id)
+                                ->where('read', false)
+                                ->count();
+                            $daftarSurat = \App\Models\IncomingLetter::where('user_id', Auth::user()->id)
+                                ->orderBy('created_at', 'desc')
+                                ->limit(10)
+                                ->get();
+
+                        @endphp
+                        <!-- Notification Icon -->
+                        <div class="relative mr-4">
+                            <button id="notificationButton" onclick="toggleDropdown()" class="relative focus:outline-none">
+                                <!-- Icon surat -->
+                                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-18 8h18a2 2 0 002-2V8a2 2 0 00-2-2H3a2 2 0 00-2 2v6a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+
+                                <!-- Titik Merah -->
+                                @if ($suratBelumDibaca > 0)
+                                    <span
+                                        class="absolute top-0 right-0 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+                                @endif
+                            </button>
+
+                            <!-- Dropdown Surat -->
+                            <div id="notificationDropdown"
+                                class="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-md shadow-lg hidden z-50">
+                                <div class="p-4 font-bold text-gray-700 border-b">Surat Masuk</div>
+                                <ul>
+                                    @forelse ($daftarSurat as $surat)
+                                        <li class="px-4 py-2 border-b {{ $surat->read ? 'bg-white' : 'bg-gray-100' }}">
+                                            <a href="{{ route('surat-masuk.show', $surat->slug) }}" class="block">
+                                                <div class="text-sm font-semibold">{{ $surat->sender }}</div>
+                                                <div class="text-sm text-gray-600">{{ $surat->subject }}</div>
+                                                <div class="text-xs text-gray-400">No: {{ $surat->letter_number }}</div>
+                                            </a>
+                                        </li>
+                                    @empty
+                                        <li class="px-4 py-2 text-center text-gray-500">Tidak ada surat</li>
+                                    @endforelse
+                                </ul>
+                            </div>
+                        </div>
+                    @endif
+                @endauth
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button
@@ -138,3 +191,19 @@
         </div>
     </div>
 </nav>
+
+<script>
+    function toggleDropdown() {
+        const dropdown = document.getElementById('notificationDropdown');
+        dropdown.classList.toggle('hidden');
+    }
+
+    // Tutup dropdown jika klik di luar
+    window.addEventListener('click', function(e) {
+        const button = document.getElementById('notificationButton');
+        const dropdown = document.getElementById('notificationDropdown');
+        if (!button.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+</script>

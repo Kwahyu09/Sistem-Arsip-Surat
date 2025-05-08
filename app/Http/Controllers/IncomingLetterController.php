@@ -150,4 +150,15 @@ class IncomingLetterController extends Controller
 
         return redirect()->route('surat-masuk.index')->with('error', 'File tidak ditemukan.');
     }
+
+    public function show($slug)
+    {
+        // Tandai sebagai sudah dibaca jika belum
+        if (!$slug->read) {
+            $slug->read = true;
+            $slug->save();
+        }
+
+        return back();
+    }
 }

@@ -54,6 +54,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/rekap', [RekapController::class, 'index'])->name('rekap.index');
     });
 
+    Route::get('/surat-masuk/{slug}', [IncomingLetterController::class, 'show'])->name('surat-masuk.show');
+
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });
