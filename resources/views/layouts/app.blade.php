@@ -106,9 +106,11 @@
                         <i class="fas fa-tachometer-alt mr-3 text-gray-400"></i> Dashboard
                     </a>
 
-                    <a href="{{ route('users.index') }}" class="flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('users.index') ? 'bg-gray-100 text-gray-900' : 'text-gray-700' }} hover:bg-gray-100 transition">
-                        <i class="fas fa-users-cog mr-3 text-gray-400"></i> Manajemen Pengguna
-                    </a>
+                    @if(Auth::user()->role == 'admin')
+    <a href="{{ route('users.index') }}" class="flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('users.index') ? 'bg-gray-100 text-gray-900' : 'text-gray-700' }} hover:bg-gray-100 transition">
+        <i class="fas fa-users-cog mr-3 text-gray-400"></i> Manajemen Pengguna
+    </a>
+@endif
 
                     <a href="{{ route('incomingletter.index') }}" class="flex items-center px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition">
                         <i class="fas fa-envelope-open-text mr-3 text-gray-400"></i> Surat Masuk
@@ -137,5 +139,8 @@
 
     <!-- AlpineJS -->
     <script src="//unpkg.com/alpinejs" defer></script>
+
+    {{-- Stack untuk script tambahan seperti Chart.js --}}
+    @stack('scripts')
 </body>
 </html>
