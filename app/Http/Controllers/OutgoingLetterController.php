@@ -147,4 +147,5 @@ class OutgoingLetterController extends Controller
 
         return redirect()->route('surat-keluar.index')->with('error', 'File tidak ditemukan.');
     }
+    
 }

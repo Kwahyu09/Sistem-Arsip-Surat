@@ -13,8 +13,13 @@ class OutgoingLetter extends Model
     protected $table = 'outgoing_letters';
 
     protected $fillable = [
-        'recipient', 'slug', 'letter_number', 'letter_date',
-        'subject', 'file_path', 'user_id',
+        'recipient',
+        'slug',
+        'letter_number',
+        'letter_date',
+        'subject',
+        'file_path',
+        'user_id',
     ];
 
     protected static function boot()

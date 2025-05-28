@@ -6,12 +6,15 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
+            {{-- Greeting --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ 'Selamat Datang ' . Auth::user()->name }}
+                <div class="p-6 text-gray-900 text-lg">
+                    {{ 'Selamat Datang, ' . Auth::user()->name }}
                 </div>
             </div>
-        </div>
-    </div>
+
+        </div> <!-- penutup max-w-7xl -->
+    </div> <!-- penutup py-12 -->
 </x-app-layout>

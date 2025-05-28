@@ -64,7 +64,6 @@ class IncomingLetterController extends Controller
         flash()->success('Surat Masuk Berhasil Ditambahkan.', ['title' => 'Berhasil']);
 
         return redirect()->route('surat-masuk.index');
-    
     }
 
     public function edit(IncomingLetter $incomingletter)
