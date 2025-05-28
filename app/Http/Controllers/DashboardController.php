@@ -2,31 +2,53 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Models\IncomingLetter;
-use App\Models\Rekap;
 use App\Models\OutgoingLetter;
-use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $totalSuratMasuk = IncomingLetter::count();
-        $totalSuratKeluar = OutgoingLetter::count();
-        $totalRekap = Rekap::count();
+        // Hitung jumlah surat masuk dan keluar
+        $incomingCount = IncomingLetter::count();
+        $outgoingCount = OutgoingLetter::count();
 
-        $suratMasukBulanan = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $suratMasukBulanan[] = IncomingLetter::whereMonth('tanggal_surat', $i)
-                ->whereYear('tanggal_surat', Carbon::now()->year)
-                ->count();
-        }
+        // Arsip adalah gabungan dari surat masuk dan keluar
+        $archiveCount = $incomingCount + $outgoingCount;
+
+        // Rekap per tahun: surat masuk
+        $incomingRekap = IncomingLetter::selectRaw("strftime('%Y', letter_date) as year, COUNT(*) as total")
+            ->whereNotNull('letter_date')
+            ->groupBy('year')
+            ->orderBy('year')
+            ->get();
+
+        // Rekap per tahun: surat keluar
+        $outgoingRekap = OutgoingLetter::selectRaw("strftime('%Y', letter_date) as year, COUNT(*) as total")
+            ->whereNotNull('letter_date')
+            ->groupBy('year')
+            ->orderBy('year')
+            ->get();
+
+        // Gabungkan semua tahun yang muncul di surat masuk dan keluar
+        $years = collect($incomingRekap)->pluck('year')
+            ->merge($outgoingRekap->pluck('year'))
+            ->unique()
+            ->sort()
+            ->values();
+
+        // Cocokkan total per tahun
+        $incomingData = $years->map(fn($year) => $incomingRekap->firstWhere('year', $year)->total ?? 0);
+        $outgoingData = $years->map(fn($year) => $outgoingRekap->firstWhere('year', $year)->total ?? 0);
 
         return view('dashboard', compact(
-            'totalSuratMasuk',
-            'totalSuratKeluar',
-            'totalRekap',
-            'suratMasukBulanan'
+            'incomingCount',
+            'outgoingCount',
+            'archiveCount',
+            'years',
+            'incomingData',
+            'outgoingData'
         ));
     }
 }

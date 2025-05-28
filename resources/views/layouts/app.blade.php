@@ -41,7 +41,7 @@
             <!-- Logo & Judul -->
             <div class="flex items-center gap-3">
                 <img src="{{ asset('images/logopemda.png') }}" alt="Logo Pemda" class="w-10 h-10 object-contain">
-                <span class="text-lg font-bold text-white">Sistem Arsip Surat</span>
+                <span class="text-lg font-bold text-white">ARSIP SURAT KECAMATAN PONDOK KELAPA BENGKULU TENGAH</span>
             </div>
 
             <!-- Notifikasi dan User -->

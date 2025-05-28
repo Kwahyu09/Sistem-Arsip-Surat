@@ -7,7 +7,7 @@
                 <!-- LOGO SECTION -->
                 <div class="md:w-1/2 w-full bg-gray-50 flex flex-col items-center justify-center p-10">
                     <img src="{{ asset('images/logopemda.png') }}" alt="Logo Pemda" class="w-36 mb-6">
-                    <h1 class="text-2xl font-semibold text-gray-800 text-center">Sistem Arsip Surat</h1>
+                    <h1 class="text-2xl font-bold text-gray-800 text-center">SISTEM ARSIP SURAT KECAMATAN PONDOK KELAPA BENGKULU TENGAH</h1>
                 </div>
 
                 <!-- LOGIN FORM SECTION -->
