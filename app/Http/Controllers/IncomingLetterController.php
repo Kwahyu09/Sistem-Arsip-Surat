@@ -5,28 +5,32 @@ namespace App\Http\Controllers;
 use App\Http\Requests\IncomingLetterRequest;
 use App\Models\IncomingLetter;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class IncomingLetterController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $search = request('search');
-
+        $search = $request->search;
         $query = IncomingLetter::query();
 
+        // Jika staff_bidang, hanya tampilkan surat yang dia miliki
         if (Auth::user()->role === 'staff_bidang') {
             $query->where('user_id', Auth::id());
         }
 
-        $query->when($search, function ($q, $search) {
-            $q->where('sender', 'like', "%{$search}%")
-                ->orWhere('subject', 'like', "%{$search}%")
-                ->orWhere('letter_number', 'like', "%{$search}%");
-        });
+        // Pencarian
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('sender', 'like', "%{$search}%")
+                    ->orWhere('letter_number', 'like', "%{$search}%")
+                    ->orWhere('subject', 'like', "%{$search}%");
+            });
+        }
 
-        $incomingletter = $query->latest()->paginate(10);
+        $incomingletter = $query->with('user')->latest()->paginate(10);
 
         return view('incomingletter.index', compact('incomingletter'));
     }
@@ -121,11 +125,9 @@ class IncomingLetterController extends Controller
         return redirect()->route('incomingletter.index')->with('error', 'File tidak ditemukan atau sudah dihapus.');
     }
 
-
     public function downloadFile($slug)
     {
         $letter = IncomingLetter::where('slug', $slug)->firstOrFail();
-
         $this->authorizeAccess($letter);
 
         if ($letter->file_path && Storage::exists($letter->file_path)) {
@@ -138,7 +140,6 @@ class IncomingLetterController extends Controller
     public function markRead($slug)
     {
         $letter = IncomingLetter::where('slug', $slug)->firstOrFail();
-
         $this->authorizeAccess($letter);
 
         $letter->read = true;
@@ -150,7 +151,6 @@ class IncomingLetterController extends Controller
     public function updateDisposition($slug)
     {
         $letter = IncomingLetter::where('slug', $slug)->firstOrFail();
-
         $this->authorizeAccess($letter);
 
         request()->validate([

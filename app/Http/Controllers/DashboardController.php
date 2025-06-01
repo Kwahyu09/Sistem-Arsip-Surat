@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
-use App\Models\IncomingLetter;
-use App\Models\OutgoingLetter;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Carbon\Carbon;
-
 
 class DashboardController extends Controller
 {
@@ -16,27 +13,28 @@ class DashboardController extends Controller
         $currentYear = Carbon::now()->year;
 
         // Hitung jumlah surat masuk dan keluar
-        $incomingCount = IncomingLetter::count();
-        $outgoingCount = OutgoingLetter::count();
+        $incomingCount = DB::table('incoming_letter')->count();
+        $outgoingCount = DB::table('outgoing_letters')->count();
 
-        // Arsip adalah gabungan dari surat masuk dan keluar
         $archiveCount = $incomingCount + $outgoingCount;
 
-        // Rekap per tahun: surat masuk
-        $incomingRekap = IncomingLetter::selectRaw("YEAR(letter_date) as year, COUNT(*) as total")
+        // Rekap per tahun: surat masuk (SQLite pakai strftime('%Y', column))
+        $incomingRekap = DB::table('incoming_letter')
+            ->selectRaw("strftime('%Y', letter_date) as year, COUNT(*) as total")
             ->whereNotNull('letter_date')
             ->groupBy('year')
             ->orderBy('year')
             ->get();
 
         // Rekap per tahun: surat keluar
-        $outgoingRekap = OutgoingLetter::selectRaw("YEAR(letter_date) as year, COUNT(*) as total")
+        $outgoingRekap = DB::table('outgoing_letters')
+            ->selectRaw("strftime('%Y', letter_date) as year, COUNT(*) as total")
             ->whereNotNull('letter_date')
             ->groupBy('year')
             ->orderBy('year')
             ->get();
 
-        // Gabungkan semua tahun yang muncul
+        // Gabungkan semua tahun
         $years = collect($incomingRekap)->pluck('year')
             ->merge($outgoingRekap->pluck('year'))
             ->unique()
@@ -46,20 +44,22 @@ class DashboardController extends Controller
         $incomingData = $years->map(fn($year) => $incomingRekap->firstWhere('year', $year)->total ?? 0);
         $outgoingData = $years->map(fn($year) => $outgoingRekap->firstWhere('year', $year)->total ?? 0);
 
-        // Rekap per bulan (grafik bar)
-        $incomingPerMonthRaw = IncomingLetter::selectRaw('MONTH(letter_date) as month, COUNT(*) as total')
-            ->whereYear('letter_date', $currentYear)
-            ->groupByRaw('MONTH(letter_date)')
+        // Rekap per bulan (SQLite pakai strftime('%m', column))
+        $incomingPerMonthRaw = DB::table('incoming_letter')
+            ->selectRaw("strftime('%m', letter_date) as month, COUNT(*) as total")
+            ->whereRaw("strftime('%Y', letter_date) = ?", [$currentYear])
+            ->groupByRaw("strftime('%m', letter_date)")
             ->pluck('total', 'month')
             ->all();
 
-        $outgoingPerMonthRaw = OutgoingLetter::selectRaw('MONTH(letter_date) as month, COUNT(*) as total')
-            ->whereYear('letter_date', $currentYear)
-            ->groupByRaw('MONTH(letter_date)')
+        $outgoingPerMonthRaw = DB::table('outgoing_letters')
+            ->selectRaw("strftime('%m', letter_date) as month, COUNT(*) as total")
+            ->whereRaw("strftime('%Y', letter_date) = ?", [$currentYear])
+            ->groupByRaw("strftime('%m', letter_date)")
             ->pluck('total', 'month')
             ->all();
 
-        // Konversi ke array numerik dari bulan 1-12
+        // Konversi ke array 0–11
         $incomingPerMonth = array_fill(0, 12, 0);
         $outgoingPerMonth = array_fill(0, 12, 0);
 
@@ -82,5 +82,4 @@ class DashboardController extends Controller
             'outgoingPerMonth'
         ));
     }
-
 }

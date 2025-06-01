@@ -44,21 +44,21 @@
                 <span class="text-lg font-bold text-white">ARSIP SURAT KECAMATAN PONDOK KELAPA BENGKULU TENGAH</span>
             </div>
 
-            <!-- Notifikasi dan User -->
+           // <!-- Notifikasi dan User -->
             <div class="flex items-center space-x-6">
 
-                {{-- Dropdown Notifikasi --}}
+                {{-- Dropdown Notifikasi --
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" class="relative cursor-pointer text-white focus:outline-none" aria-label="Notifikasi">
                         <i class="fas fa-bell text-xl"></i>
 
-                        {{-- Badge muncul jika ada notifikasi belum dibaca --}}
+                        Badge muncul jika ada notifikasi belum dibaca
                         @if(collect($notifications ?? [])->where('read', false)->count() > 0)
                             <span class="notification-badge"></span>
                         @endif
                     </button>
 
-                    {{-- Dropdown isi notifikasi --}}
+                    {{-- Dropdown isi notifikasi --
                     <div x-show="open" @click.away="open = false" x-transition
                         class="absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-md py-2 z-50 max-h-60 overflow-y-auto">
 
@@ -70,7 +70,7 @@
                             </div>
                         @empty
                             <div class="px-4 py-2 text-gray-500">Tidak ada notifikasi.</div>
-                        @endforelse
+                       @endforelse
 
                     </div>
                 </div>

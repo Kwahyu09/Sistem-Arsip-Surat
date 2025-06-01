@@ -7,12 +7,21 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
 
-                {{-- Tombol Tambah Surat (hanya admin & staf) --}}
-                @if(in_array(Auth::user()->role, ['admin', 'staf']))
-                    <a href="{{ route('incomingletter.create') }}" class="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition mb-4 shadow">
-                        Tambah Surat Masuk
-                    </a>
-                @endif
+                {{-- Baris: Tombol Tambah & Form Pencarian --}}
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                    @if(in_array(Auth::user()->role, ['admin', 'staf']))
+                        <a href="{{ route('incomingletter.create') }}" class="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition shadow">
+                            Tambah Surat Masuk
+                        </a>
+                    @endif
+
+                    <form action="{{ route('incomingletter.index') }}" method="GET" class="flex border rounded overflow-hidden w-full md:w-auto">
+                        <input type="text" name="search" placeholder="Cari surat..."
+                            class="px-4 py-2 w-full md:w-64 outline-none"
+                            value="{{ request('search') }}">
+                        <button type="submit" class="bg-blue-600 text-white px-4 hover:bg-blue-700 transition">Cari</button>
+                    </form>
+                </div>
 
                 {{-- Tabel Surat --}}
                 <div class="overflow-x-auto">
@@ -33,64 +42,68 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-100">
-                            @foreach ($incomingletter as $letter)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-4 py-2 whitespace-nowrap">{{ $letter->sender }}</td>
-                                <td class="px-4 py-2">{{ $letter->letter_number }}</td>
-                                <td class="px-4 py-2">{{ \Carbon\Carbon::parse($letter->letter_date)->format('d-m-Y') }}</td>
-                                <td class="px-4 py-2 text-center">
-                                    @if(in_array(Auth::user()->role, ['admin', 'staff_bidang']) && $letter->file_path)
-                                        <a href="{{ route('incomingletter.viewFile', $letter->slug) }}" target="_blank" class="text-green-600 hover:text-green-800 font-semibold">Baca</a>
-                                        <span class="mx-1">|</span>
-                                        <a href="{{ route('incomingletter.downloadFile', $letter->slug) }}" class="text-blue-600 hover:text-blue-800 font-semibold">Unduh</a>
-                                    @else
-                                        <span class="text-gray-400 italic">-</span>
+                            @forelse ($incomingletter as $letter)
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-4 py-2 whitespace-nowrap">{{ $letter->sender }}</td>
+                                    <td class="px-4 py-2">{{ $letter->letter_number }}</td>
+                                    <td class="px-4 py-2">{{ \Carbon\Carbon::parse($letter->letter_date)->format('d-m-Y') }}</td>
+                                    <td class="px-4 py-2 text-center">
+                                        @if(in_array(Auth::user()->role, ['admin', 'staff_bidang']) && $letter->file_path)
+                                            <a href="{{ route('incomingletter.viewFile', $letter->slug) }}" target="_blank" class="text-green-600 hover:text-green-800 font-semibold">Baca</a>
+                                            <span class="mx-1">|</span>
+                                            <a href="{{ route('incomingletter.downloadFile', $letter->slug) }}" class="text-blue-600 hover:text-blue-800 font-semibold">Unduh</a>
+                                        @else
+                                            <span class="text-gray-400 italic">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-2">{{ $letter->subject }}</td>
+                                    <td class="px-4 py-2">
+                                        @if(Auth::user()->role === 'admin' || Auth::user()->role === 'staff_bidang')
+                                            <form action="{{ route('incomingletter.updateDisposition', $letter->slug) }}" method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <select name="disposition" onchange="this.form.submit()" class="border-gray-300 rounded-md shadow-sm w-full text-sm">
+                                                    <option value="known" {{ $letter->disposition === 'known' ? 'selected' : '' }}>Untuk Diketahui</option>
+                                                    <option value="actioned" {{ $letter->disposition === 'actioned' ? 'selected' : '' }}>Penting</option>
+                                                    <option value="archived" {{ $letter->disposition === 'archived' ? 'selected' : '' }}>Arsip</option>
+                                                </select>
+                                            </form>
+                                        @else
+                                            {{ ucfirst($letter->disposition) }}
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-2 text-center">
+                                        @if($letter->read)
+                                            <span class="text-green-600 font-bold" title="Sudah dibaca">✔️</span>
+                                        @elseif(in_array(Auth::user()->role, ['admin', 'staff_bidang']))
+                                            <form action="{{ route('incomingletter.markRead', $letter->slug) }}" method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="text-red-500 font-bold hover:text-green-600 transition" title="Tandai sudah dibaca">✘</button>
+                                            </form>
+                                        @else
+                                            <span class="text-gray-400">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-2">{{ $letter->user->name ?? '-' }}</td>
+                                    @if(in_array(Auth::user()->role, ['admin', 'staf']))
+                                        <td class="px-4 py-2 text-center whitespace-nowrap">
+                                            @if(Auth::user()->role === 'admin')
+                                                <a href="{{ route('incomingletter.edit', $letter->slug) }}" class="text-blue-600 hover:underline mr-2">Edit</a>
+                                                <form action="{{ route('incomingletter.destroy', $letter->slug) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin hapus surat?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:underline">Hapus</button>
+                                                </form>
+                                            @endif
+                                        </td>
                                     @endif
-                                </td>
-                                <td class="px-4 py-2">{{ $letter->subject }}</td>
-                                <td class="px-4 py-2">
-                                    @if(Auth::user()->role === 'admin' || Auth::user()->role === 'staff_bidang')
-                                        <form action="{{ route('incomingletter.updateDisposition', $letter->slug) }}" method="POST">
-                                            @csrf
-                                            @method('PATCH')
-                                            <select name="disposition" onchange="this.form.submit()" class="border-gray-300 rounded-md shadow-sm w-full text-sm">
-                                                <option value="known" {{ $letter->disposition === 'known' ? 'selected' : '' }}>Untuk Diketahui</option>
-                                                <option value="actioned" {{ $letter->disposition === 'actioned' ? 'selected' : '' }}>Penting</option>
-                                                <option value="archived" {{ $letter->disposition === 'archived' ? 'selected' : '' }}>Arsip</option>
-                                            </select>
-                                        </form>
-                                    @else
-                                        {{ ucfirst($letter->disposition) }}
-                                    @endif
-                                </td>
-                                <td class="px-4 py-2 text-center">
-                                    @if($letter->read)
-                                        <span class="text-green-600 font-bold" title="Sudah dibaca">✔️</span>
-                                    @elseif(in_array(Auth::user()->role, ['admin', 'staff_bidang']))
-                                        <form action="{{ route('incomingletter.markRead', $letter->slug) }}" method="POST">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="text-red-500 font-bold hover:text-green-600 transition" title="Tandai sudah dibaca">✘</button>
-                                        </form>
-                                    @else
-                                        <span class="text-gray-400">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-2">{{ $letter->user->name ?? '-' }}</td>
-                                @if(in_array(Auth::user()->role, ['admin', 'staf']))
-                                <td class="px-4 py-2 text-center whitespace-nowrap">
-                                    @if(Auth::user()->role === 'admin')
-                                        <a href="{{ route('incomingletter.edit', $letter->slug) }}" class="text-blue-600 hover:underline mr-2">Edit</a>
-                                        <form action="{{ route('incomingletter.destroy', $letter->slug) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin hapus surat?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:underline">Hapus</button>
-                                        </form>
-                                    @endif
-                                </td>
-                                @endif
-                            </tr>
-                            @endforeach
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="text-center py-6 text-gray-500 italic">Tidak ada data surat masuk.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
